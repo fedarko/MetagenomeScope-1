@@ -528,3 +528,37 @@ def test_parse_metacarvel_gml_repeated_edge_source_or_target():
     mg.insert(167, "   target 6\n")
     exp_msg = "undefined target [12, 6]"
     run_tempfile_test("gml", mg, NetworkXError, exp_msg, join_char="")
+
+
+def test_parse_bubblechaintest_graph():
+    """Tests a case that was causing us problems: see
+    https://github.com/marbl/MetagenomeScope/issues/202.
+
+    This just checks that all nodes and edges we expected to see are here.
+    """
+    g = parse_metacarvel_gml(
+        "metagenomescope/tests/input/bubble_chain_test.gml"
+    )
+    assert sorted(list(g.nodes)) == [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+    ]
+    assert sorted([list(t) for t in g.edges]) == [
+        ["0", "1"],
+        ["1", "2"],
+        ["1", "3"],
+        ["2", "4"],
+        ["3", "4"],
+        ["4", "5"],
+        ["4", "6"],
+        ["5", "7"],
+        ["6", "7"],
+        ["7", "8"],
+    ]
