@@ -169,6 +169,7 @@ def test_bubble_cyclic_chain_identification():
     assert len(ag.frayed_ropes) == 0
     assert len(ag.bubbles) == 4
 
+
 def test_frayed_ropes_not_usable_in_other_patts():
     r"""This is a real pattern seen in the Velvet E. coli test graph.
 
