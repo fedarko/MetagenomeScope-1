@@ -114,9 +114,10 @@ def test_bubble_chain_identification():
     """
     ag = AssemblyGraph("metagenomescope/tests/input/bubble_chain_test.gml")
     ag.process()
-    assert len(ag.decomposed_digraph.nodes) == 1
-    assert len(ag.decomposed_digraph.edges) == 0
-    assert len(ag.chains) == 3
+    # chain -> frayed rope -> chain
+    assert len(ag.decomposed_digraph.nodes) == 3
+    assert len(ag.decomposed_digraph.edges) == 4
+    assert len(ag.chains) == 2
     assert len(ag.cyclic_chains) == 0
     assert len(ag.frayed_ropes) == 1
     assert len(ag.bubbles) == 0
