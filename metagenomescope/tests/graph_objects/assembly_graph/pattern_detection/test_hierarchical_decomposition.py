@@ -1,3 +1,5 @@
+import tempfile
+import networkx as nx
 from metagenomescope.graph_objects import AssemblyGraph
 
 
@@ -111,7 +113,7 @@ def test_bubble_chain_identification():
     resulting graph should be the same.
     """
     ag = AssemblyGraph("metagenomescope/tests/input/bubble_chain_test.gml")
-    ag.hierarchically_identify_patterns()
+    ag.process()
     assert len(ag.decomposed_digraph.nodes) == 1
     assert len(ag.decomposed_digraph.edges) == 0
     assert len(ag.chains) == 3
@@ -166,3 +168,35 @@ def test_bubble_cyclic_chain_identification():
     assert len(ag.cyclic_chains) == 1
     assert len(ag.frayed_ropes) == 0
     assert len(ag.bubbles) == 4
+
+def test_frayed_ropes_not_usable_in_other_patts():
+    r"""This is a real pattern seen in the Velvet E. coli test graph.
+
+    Basically, frayed ropes being used in other patterns doesn't really make
+    sense (usually), so this tests that that isn't allowed.
+
+               7
+              /
+    0   3 -- 6 -- 8
+     \ /    /
+      2    5
+     / \
+    1   4
+
+    """
+    g = nx.DiGraph()
+    # First f.rope
+    g.add_edge(0, 2)
+    g.add_edge(1, 2)
+    g.add_edge(2, 3)
+    g.add_edge(2, 4)
+    # Second f.rope
+    g.add_edge(3, 6)
+    g.add_edge(5, 6)
+    g.add_edge(6, 7)
+    g.add_edge(6, 8)
+    with tempfile.NamedTemporaryFile(suffix=".gml") as f:
+        nx.write_gml(g, f.name)
+        ag = AssemblyGraph(f.name)
+        ag.hierarchically_identify_patterns()
+        assert len(ag.frayed_ropes) == 1
