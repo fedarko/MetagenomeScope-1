@@ -435,6 +435,26 @@ class AssemblyGraph(object):
         return False
 
     @staticmethod
+    def contained_nodes_valid(g, node_ids):
+        """Returns True if no "global restrictions" apply to the nodes to be
+        added to a pattern. Returns False otherwise -- this indicates that
+        no, any pattern constructed from these node IDs would be invalid.
+
+        Currently, the only one of these restrictions used is that "No
+        frayed ropes can be contained within other patterns." This is
+        because frayed ropes, by definition, have multiple in/out nodes --
+        so treating them as a single node, the same way we treat collapsed
+        bubbles, has a tendency to result in gross, useless patterns. (This
+        isn't always the case!!! But it's an approximation. Right now
+        pattern decomposition is an imprecise science.)
+        """
+        for node_id in node_ids:
+            if "pattern_type" in g.nodes[node_id]:
+                if g.nodes[node_id]["pattern_type"] == "frayedrope":
+                    return False
+        return True
+
+    @staticmethod
     def is_valid_3node_bubble(g, starting_node_id):
         r"""Returns a 4-tuple of (True, a list of all the nodes in the bubble,
            the starting node in the bubble, the ending node in the bubble)
@@ -1143,35 +1163,51 @@ class AssemblyGraph(object):
                     n = candidate_nodes[0]
                     validator_outputs = validator(self.decomposed_digraph, n)
                     pattern_valid = validator_outputs[0]
+                    pattern_was_created = False
                     if pattern_valid:
                         pattern_node_ids = validator_outputs[1]
+                        # We run a second "check" here. This lets us impose any
+                        # restrictions on the composition of all types of patterns
+                        # -- for example, "frayed ropes can't be contained within
+                        # any patterns." USUALLY these sorts of restrictions should
+                        # be localized to individual patterns, but with the frayed
+                        # rope thing I wanna enforce that globally so I'm doing it
+                        # this way.
+                        pattern_nodes_valid = (
+                            AssemblyGraph.contained_nodes_valid(
+                                self.decomposed_digraph, pattern_node_ids
+                            )
+                        )
+                        if pattern_nodes_valid:
+                            if ptype == "bubble":
+                                # There is a start and ending node in this pattern
+                                # that we may want to duplicate. See issue #84 on
+                                # GitHub for lots and lots of details.
+                                s_id = validator_outputs[2]
+                                e_id = validator_outputs[3]
+                                p = self.add_bubble(
+                                    pattern_node_ids, s_id, e_id
+                                )
+                            else:
+                                p = self.add_pattern(pattern_node_ids, ptype)
 
-                        if ptype == "bubble":
-                            # There is a start and ending node in this pattern
-                            # that we may want to duplicate. See issue #84 on
-                            # GitHub for lots and lots of details.
-                            s_id = validator_outputs[2]
-                            e_id = validator_outputs[3]
-                            p = self.add_bubble(pattern_node_ids, s_id, e_id)
-                        else:
-                            p = self.add_pattern(pattern_node_ids, ptype)
-
-                        collection.append(p)
-                        candidate_nodes.append(p.pattern_id)
-                        self.id2pattern[p.pattern_id] = p
-                        for pn in p.node_ids:
-                            # Remove nodes if they're in candidate nodes. There
-                            # may be nodes in this pattern not in candidate
-                            # nodes, e.g. if duplication was done. In that case
-                            # no need to do anything for those nodes.
-                            # This should perform decently; see
-                            # https://stackoverflow.com/a/4915964/10730311.
-                            try:
-                                candidate_nodes.remove(pn)
-                            except ValueError:
-                                continue
-                        something_collapsed = True
-                    else:
+                            collection.append(p)
+                            candidate_nodes.append(p.pattern_id)
+                            self.id2pattern[p.pattern_id] = p
+                            for pn in p.node_ids:
+                                # Remove nodes if they're in candidate nodes. There
+                                # may be nodes in this pattern not in candidate
+                                # nodes, e.g. if duplication was done. In that case
+                                # no need to do anything for those nodes.
+                                # This should perform decently; see
+                                # https://stackoverflow.com/a/4915964/10730311.
+                                try:
+                                    candidate_nodes.remove(pn)
+                                except ValueError:
+                                    continue
+                            something_collapsed = True
+                            pattern_was_created = True
+                    if not pattern_was_created:
                         # If the pattern was invalid, we still need to
                         # remove n
                         candidate_nodes.remove(n)
