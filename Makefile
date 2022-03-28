@@ -17,7 +17,7 @@
 # based on the initial version of this Makefile, anyway, so it's a silly
 # chicken-and-egg thing).
 
-.PHONY: pytest jstest test stylecheck style jsstyle demo
+.PHONY: pytest jstest test stylecheck style pystyle jsstyle demo
 
 PYTEST_COMMAND = python3 -B -m pytest metagenomescope/tests/ --cov
 PYLOCS = metagenomescope/ setup.py
@@ -49,9 +49,11 @@ style:
 	prettier --debug-check --tab-width 4 $(JSLOCS) $(HTMLCSSLOCS)
 	prettier --write --tab-width 4 $(JSLOCS) $(HTMLCSSLOCS)
 
+# Shorthands
+pystyle:
+	black -l 79 $(PYLOCS)
+
 jsstyle:
-	@# Shorthand, for when I'm developing JS code and don't want to waste time
-	@# with python/HTML stuff
 	prettier --write --tab-width 4 $(JSLOCS)
 
 demo:
