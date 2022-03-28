@@ -104,6 +104,22 @@ COLL_CL_H_FAC = 1.0 / 2.0
 # More info on these available at www.graphviz.org/doc/info/attrs.html
 
 NODE_ORIENTATION_TO_SHAPE = {"+": "invhouse", "-": "house"}
+# See https://github.com/marbl/MetagenomeScope/issues/206. Nodes that we
+# duplicate due to being on the boundary of a bubble will have different
+# shapes to illustrate that these are really one node split up.
+# The keys used in this dictionary ("+1", "+2", "-1", "-2") are defined as
+# follows, in the context of assigning a shape to an arbitrary node that has
+# been duplicated. The first character in the refers to this node's orientation
+# (+ or -); note that orientation does not change when we duplicate a node.
+# The second character refers to whether this node has an outgoing edge to
+# its duplicate (1) or has an incoming edge from its duplicate (2).
+# (...And no, you can't have both types of adjacent edges at once.)
+BOUNDARY_NODE_TYPE_TO_SHAPE = {
+    "+1": "rect",
+    "+2": "invtriangle",
+    "-1": "rect",
+    "-2": "triangle",
+}
 
 ### Global graph settings (applied to every node/edge/etc. in the graph) ###
 #
