@@ -17,7 +17,7 @@
 # based on the initial version of this Makefile, anyway, so it's a silly
 # chicken-and-egg thing).
 
-.PHONY: pytest jstest test
+.PHONY: pytest jstest test stylecheck style jsstyle demo
 
 PYTEST_COMMAND = python3 -B -m pytest metagenomescope/tests/ --cov
 PYLOCS = metagenomescope/ setup.py
