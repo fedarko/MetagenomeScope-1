@@ -294,7 +294,9 @@ define([
                     {
                         selector: "node.basic.rightdir",
                         style: {
-                            // Represents a node pointing right (i.e. forward)
+                            // Represents a node pointing left (i.e. in the
+                            // reverse direction, if the graph flows from left
+                            // to right)
                             //  ___
                             // |   \
                             // |___/
