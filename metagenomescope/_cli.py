@@ -26,6 +26,7 @@ from .main import make_viz
 from ._param_descriptions import (
     INPUT,
     OUTPUT_DIR,
+    OMIT_REDUNDANT_COMPONENTS,
     MAXN,
     MAXE,
 )
@@ -35,6 +36,14 @@ from ._param_descriptions import (
 @click.command(context_settings={"help_option_names": ["-h", "--help"]})
 @click.option("-i", "--input-file", required=True, help=INPUT)
 @click.option("-o", "--output-dir", required=True, help=OUTPUT_DIR)
+@click.option(
+    "-orc/-no-orc",
+    "--omit-redundant-components/--no-omit-redundant-components",
+    required=False,
+    default=True,
+    show_default=True,
+    help=OMIT_REDUNDANT_COMPONENTS,
+)
 # @click.option(
 #    "-ao",
 #    "--assume-oriented",

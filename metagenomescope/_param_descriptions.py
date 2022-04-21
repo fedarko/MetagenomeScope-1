@@ -29,6 +29,13 @@ OUTPUT_DIR = (
     "an error will be raised."
 )
 
+OMIT_REDUNDANT_COMPONENTS = (
+    "If two (weakly connected) components of the assembly graph are the exact "
+    "reverse complement of each other, this flag causes MetagenomeScope to "
+    "only draws one of these two components -- the drawn component is the "
+    'one with the higher number of "positive" nodes.'
+)
+
 ASSUME_ORIENTED = (
     "Assume that the nodes in a graph are already oriented, and doesn't "
     "create duplicates. This will only work with graphs where, for every "
